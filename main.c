@@ -63,19 +63,77 @@ int read_promoter(char *filename){
 int main(int argc, char* argv[]){
   int seq_num = read_multi_seq(argv[1]); //１番目の引数で指定した転写因子の複数の結合部位配列を読み込む
 
-  printf("motif region:\n");
-  for(int i = 0; i < seq_num; i++){
-    printf("%s\n",g_motif[i]); //読み込んだ転写因子の結合部位配列を表示
-  }
-  printf("\n");
-
   int gene_num = read_promoter(argv[2]);  //２番目の引数で指定した遺伝子のプロモータ領域を読み込む
-  
-  printf("promoter_sequence:\n");
-  for(int i = 0; i < gene_num; i++){
-    printf(">%s\n", g_pro[i].name); //読み込んだプロモータ領域を表示
-    printf("%s\n", g_pro[i].seq);
-  }
+  void make_frequency_matrix(seq_num);
 
   return 0;
+}
+
+
+/*void f(char *filename){
+    for(int i=0; i<seq_num; i++){
+        for(j=0; j<motif_len; j++){
+            char bace=g_motif[i][j];
+             switch(bace[i]){
+                case 'A' : matrix[A][i]++; break;
+                case 'C' : matrix[C][i]++; break;
+                case 'G' : matrix[G][i]++; break;
+                case 'T' : matrix[Y][i]++; break;
+                default : fprint(stderr, "unknown char %c/n", bace);
+            }
+    }
+    }
+    
+    for (i=0; i<4; k++){
+
+        for(int j=0; j<MAX_GENE_NUM; j++){
+            printf(matrix[j][i]);}
+        printf("\n");
+
+        }
+
+    }
+  }   
+*/
+
+
+void make_frequency_matrix(int motif_num)
+{
+  if(motif_num == 0) return;
+
+  int motif_len = strlen(g_motif[0]);
+  int freq[motif_len][4]; // A=0, T=1, G=2, C=3
+
+  // 初期化
+  for(int i = 0; i < 4; i++){
+    for(int j = 0; j < motif_len; j++){
+      freq[j][i] = 0;
+    }
+  }
+
+  // カウント
+  enum dna {A, C, G, T};
+
+  for(int i = 0; i < motif_num; i++){
+    for(int j = 0; j < motif_len; j++){
+      char base = g_motif[i][j];
+      switch(base){
+        case 'A': freq[A][j]++; break;
+        case 'T': freq[C][j]++; break;
+        case 'G': freq[G][j]++; break;
+        case 'C': freq[T][j]++; break;
+        default:
+          printf("Unexpected base '%c' at motif %d position %d\n", base, i, j);
+          break;
+      }
+    }
+  }
+
+  // 出力
+  printf("Position\tA\tT\tG\tC\n");
+  for(int j = 0; j < motif_len; j++)
+  {
+    printf("%d\t\t%d\t%d\t%d\t%d\n", j + 1, freq[0][j], freq[1][j], freq[2][j], freq[3][j]);
+  }
+
 }
