@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define BUFSIZE 1024 //ファイルから読み込む一行の最大文字数
 #define MAX_SEQ_NUM 30 //一つの転写因子に対して与えられる結合部位配列の最大数
@@ -76,7 +77,7 @@ int main(int argc, char* argv[]){
     for(int i=0; i<seq_num; i++){
         for(j=0; j<motif_len; j++){
             char bace=g_motif[i][j];
-             switch(bace[i]){
+            switch(bace[i]){
                 case 'A' : matrix[A][i]++; break;
                 case 'C' : matrix[C][i]++; break;
                 case 'G' : matrix[G][i]++; break;
@@ -123,12 +124,10 @@ void make_frequency_matrix(int motif_num)
         case 'T': matrix[1][j]++; break;
         case 'G': matrix[2][j]++; break;
         case 'C': matrix[3][j]++; break;
-       
+      
       } 
     }
-
   }
-    
 
   // 出力
 
@@ -137,4 +136,43 @@ void make_frequency_matrix(int motif_num)
     printf("%d %d %d %d %d\n", j + 1, matrix[0][j], matrix[1][j], matrix[2][j], matrix[3][j]);
   }
 
+
+  float Pi[4][motif_len]; // A=0, T=1, G=2, C=3
+  int bunbo=18;
+
+  // 初期化
+  for(int i = 0; i < 4; i++){
+    for(int j = 0; j < motif_len; j++){
+      Pi[i][j] = 1;
+    }
+  }
+
+  for(int i = 0; i < 4; i++){
+    for(int j = 0; j < motif_len; j++){
+      float bunshi=(float)matrix[i][j]+1;
+      Pi[i][j]=bunshi/bunbo;
+      printf("%f ",Pi[i][j]);
+    } 
+    printf("\n");
+  }
+
+
+  int Q[4];
+  Q[0]=7519429; Q[1]=4637676; Q[2]=4637676; Q[3]=7519429;
+  int totalQ=0;
+  for(int i=0;i<4;i++){totalQ+=Q[i];}
+  float q[4];
+  for(int i=0; i < 4; i++){
+    q[i]=(double)Q[i]/totalQ;
+  }
+  
+  double s[4][motif_len];
+  for(int i = 0; i < motif_num; i++){
+    for(int j = 0; j < motif_len; j++){
+      double x=Pi[i][j]/q[i];
+      s[i][j]=log(x);
+      printf("%f ", s[i][j]);
+    } 
+      printf("\n");
+  }
 }
