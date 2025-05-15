@@ -166,8 +166,9 @@ void make_frequency_matrix(int motif_num)
     q[i]=(double)Q[i]/totalQ;
   }
   
+  printf("\nオッズスコア\n");
   double s[4][motif_len];
-  for(int i = 0; i < motif_num; i++){
+  for(int i = 0; i < 4; i++){
     for(int j = 0; j < motif_len; j++){
       double x=Pi[i][j]/q[i];
       s[i][j]=log(x);
