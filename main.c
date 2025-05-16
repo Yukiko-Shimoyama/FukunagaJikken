@@ -101,10 +101,10 @@ void make_frequency_matrix(int motif_num)
   }
 
   // 出力
-  printf("  A T G C\n");
+  printf("A  T  G  C\n");
   for(int j = 0; j < motif_len; j++)
   {
-    printf("%d %d %d %d %d\n", j + 1, matrix[0][j], matrix[1][j], matrix[2][j], matrix[3][j]);
+    printf("%d %d %d %d\n", matrix[0][j], matrix[1][j], matrix[2][j], matrix[3][j]);
   }
 
   float Pi[4][motif_len]; // A=0, T=1, G=2, C=3
