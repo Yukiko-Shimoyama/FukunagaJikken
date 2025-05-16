@@ -149,7 +149,6 @@ int motif_size=strlen(g_motif[0]);
 double hit;
 
 for(int i=0; i<MAX_GENE_NUM; i++){
-  printf("\npro: %s\n", g_pro[i].name);
   for(int j=0; j<promoter_size-motif_size+1; j++){
     hit=0;
     for(int k=0; k<motif_size; k++){
@@ -157,7 +156,14 @@ for(int i=0; i<MAX_GENE_NUM; i++){
       if(g_pro[i].seq[j+k]=='T'){hit += s[1][k];}
       if(g_pro[i].seq[j+k]=='G'){hit += s[2][k];}
       if(g_pro[i].seq[j+k]=='C'){hit += s[3][k];}}
-      if(hit > 5){printf("No.%d score=%f\n", j+1, hit);}
+      if(hit > 5){
+        printf("\npro: %s\n", g_pro[i].name);
+        printf("pos: %d\nhit(", j+1);
+        for(int l=0; l<motif_size; l++){
+          printf("%c",g_pro[i].seq[j+l]);
+        }
+        printf(")= %.2f\n\n", hit);
+      }
       }
     }
   }
