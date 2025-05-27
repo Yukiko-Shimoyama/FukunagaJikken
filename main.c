@@ -165,7 +165,8 @@ for(int i=0; i<MAX_GENE_NUM; i++){
       if(g_pro[i].seq[j+k]=='C'){hit += s[3][k];}}
 
       if(l==0){
-      if(hit > 5){
+           total+=hit; count++;
+      if(hit > -1.78){
         printf("\npro: %s\n", g_pro[i].name);
         printf("pos: %d\nhit(", j+1);
         for(int l=0; l<motif_size; l++){
@@ -173,9 +174,6 @@ for(int i=0; i<MAX_GENE_NUM; i++){
         }
         printf(")= %.2f\n\n", hit);
       }}
-
-      total+=hit; count++;
-
       if(l==1){
         in_brackets=hit-mean;
         sigma+=in_brackets*in_brackets;
