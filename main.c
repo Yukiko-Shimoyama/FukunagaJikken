@@ -6,7 +6,7 @@
 #define BUFSIZE 1024 //ファイルから読み込む一行の最大文字数
 #define MAX_SEQ_NUM 30 //一つの転写因子に対して与えられる結合部位配列の最大数
 #define MAX_GENE_NUM 8 /*与えられるプロモータ領域の最大遺伝子数*/
-#define NUC_NUM 4 
+#define NUC_NUM 4 //塩基の種数（A, T, G, C）
 
 char g_motif[MAX_SEQ_NUM][BUFSIZE]; //転写因子の結合部位配列を保存する配列
 
@@ -80,14 +80,14 @@ void make_frequency_matrix(int motif_num)
   int motif_len = strlen(g_motif[0]);
   int matrix[NUC_NUM][motif_len]; // A=0, T=1, G=2, C=3
 
-  // 初期化
-  for(int i = 0; i < 4; i++){
+  // 頻度表(matrix)初期化
+  for(int i = 0; i < NUC_NUM; i++){
     for(int j = 0; j < motif_len; j++){
       matrix[i][j] = 0;
     }
   }
 
-  // カウント
+  // 塩基出現頻度カウント
   for(int i = 0; i < motif_num; i++){
     for(int j = 0; j < motif_len; j++){
       char base = g_motif[i][j];
@@ -100,40 +100,42 @@ void make_frequency_matrix(int motif_num)
     }
   }
 
-  // 出力
+  // 頻度表作成
   printf("A  T  G  C\n");
   for(int j = 0; j < motif_len; j++)
   {
     printf("%d %d %d %d\n", matrix[0][j], matrix[1][j], matrix[2][j], matrix[3][j]);
   }
 
-  float Pi[4][motif_len]; // A=0, T=1, G=2, C=3
+  float Pi[NUC_NUM][motif_len]; // A=0, T=1, G=2, C=3
   int bunbo=18;
 
-  // 初期化
-  for(int i = 0; i < 4; i++){
+  // 出現確率Pの行列初期化
+  for(int i = 0; i < NUC_NUM; i++){
     for(int j = 0; j < motif_len; j++){
-      Pi[i][j] = 1;
+      Pi[i][j] = 0;
     }
   }
 
-  for(int i = 0; i < 4; i++){
+  // 出現確率Pの行列計算
+  for(int i = 0; i < NUC_NUM; i++){
     for(int j = 0; j < motif_len; j++){
-      float bunshi=(float)matrix[i][j]+1;
+      float bunshi=(float)matrix[i][j]+1; // 疑似頻度1を加える
       Pi[i][j]=bunshi/bunbo;
     } 
   }
 
-  int Q[4];
+  //バックグラウンドの出現確率qの計算
+  int Q[NUC_NUM];  // 実際の塩基出現頻度
   Q[0]=7519429; Q[1]=7519429; Q[2]=4637676; Q[3]=4637676;
   int totalQ=0;
-  for(int i=0;i<4;i++){totalQ+=Q[i];}
-  float q[4];
-  for(int i=0; i < 4; i++){
-    q[i]=(double)Q[i]/totalQ;
-  }
+  for(int i=0;i<NUC_NUM;i++){totalQ+=Q[i];}
+
+  float q[NUC_NUM]; // バックグラウンドの出現確率q
+  for(int i = 0; i < NUC_NUM; i++){q[i]=(double)Q[i]/totalQ;}
   
-  printf("\nオッズスコア\n");
+  //オッズスコア行列の計算および出力
+  printf("\nオッズスコア\n");\
   double s[NUC_NUM][motif_len];
   for(int i = 0; i < 4; i++){
     for(int j = 0; j < motif_len; j++){
@@ -144,10 +146,15 @@ void make_frequency_matrix(int motif_num)
       printf("\n");
   }
 
+//結合部位の探索
 int promoter_size=strlen(g_pro[0].seq);
 int motif_size=strlen(g_motif[0]);
 double hit;
+double mean;
+double standerd_division, in_brackets, sigma=0;
+double total=0, count=0;
 
+for(int l=0; l<2; l++){
 for(int i=0; i<MAX_GENE_NUM; i++){
   for(int j=0; j<promoter_size-motif_size+1; j++){
     hit=0;
@@ -156,6 +163,8 @@ for(int i=0; i<MAX_GENE_NUM; i++){
       if(g_pro[i].seq[j+k]=='T'){hit += s[1][k];}
       if(g_pro[i].seq[j+k]=='G'){hit += s[2][k];}
       if(g_pro[i].seq[j+k]=='C'){hit += s[3][k];}}
+
+      if(l==0){
       if(hit > 5){
         printf("\npro: %s\n", g_pro[i].name);
         printf("pos: %d\nhit(", j+1);
@@ -163,7 +172,16 @@ for(int i=0; i<MAX_GENE_NUM; i++){
           printf("%c",g_pro[i].seq[j+l]);
         }
         printf(")= %.2f\n\n", hit);
-      }
-      }
-    }
+      }}
+
+      total+=hit; count++;
+
+      if(l==1){
+        in_brackets=hit-mean;
+        sigma+=in_brackets*in_brackets;
+      }   
   }
+ }
+  if(l==0){mean=total/count; printf("平均値: %f\n", mean);}
+  if(l==1){standerd_division=sqrt(sigma/count); printf("標準偏差: %f\n", standerd_division);}
+}}
